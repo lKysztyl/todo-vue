@@ -1,47 +1,65 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+  import { reactive } from 'vue';
+  import Header from './components/Header.vue';
+  import Formulario from './components/Formulario.vue';
+  import List from './components/List.vue';
+
+  const state = reactive({
+    filtro: 'todas',
+    taskTemp: '',
+    tasks: [
+      {
+        titulo: 'Estudar ES6',
+        finalizada: false,
+      },
+      {
+        titulo: 'Estudar Typescript',
+        finalizada: false,
+      },
+      {
+        titulo: 'Estuda SASS',
+        finalizada: true,
+      }
+    ]
+  })
+
+  const getTaskPending = () => {
+    return state.tasks.filter(tasks => !tasks.finalizada)
+  }
+
+  const getTasksFinished = () => {
+    return state.tasks.filter(tasks => tasks.finalizada)
+  }
+
+  const getTasksFiltered = () => {
+    const {filtro} = state;
+    
+    switch (filtro) {
+      case 'pendentes':
+        return getTaskPending();
+
+      case 'finalizadas':
+        return getTasksFinished();
+    
+      default:
+        return state.tasks;
+    }
+  }
+
+  const cadastraTask = () => {
+    const newTask = {
+      titulo: state.taskTemp,
+      finalizada: false,
+    }
+    state.tasks.push(newTask);
+    state.taskTemp = '';
+  }
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div class="container">
+    <Header :task-pending="getTaskPending().length"/>
+    <Formulario :switch-filter="evento => state.filtro = evento.target.value" :task-temp="state.taskTemp" :edita-task-temp="evento => state.taskTemp = evento.target.value" :cadastra-task="cadastraTask"/>
+    <List :tasks="getTasksFiltered()"/>
+  </div>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
